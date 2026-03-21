@@ -1,2 +1,2 @@
 # seo-tool-ai
-Collezione di tool SEO per la creazione di contenuti
+Tool SEO per la creazione di contenuti tramite scraping dei migliori siti posizionati in Serp
