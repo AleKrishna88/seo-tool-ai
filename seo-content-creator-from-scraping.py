@@ -40,7 +40,7 @@ num_results = st.number_input(
     value=3
 )
 
-generate = st.button("Genera articolo")
+generate = st.button("Genera contenuto")
 
 # ======================
 # FUNZIONI
@@ -146,25 +146,50 @@ CONTENUTO:
     prompt = f"""
 Sei un content writer SEO esperto.
 
-Scrivi un articolo completo per la keyword:
+Scrivi un contenuto SEO completo per la keyword:
 
 {keyword}
 
-Requisiti:
+Il risultato deve contenere:
 
-- 800-1200 parole
-- SEO friendly
+TITLE TAG (max 60 caratteri)
+
+META DESCRIPTION (max 155 caratteri)
+
+ARTICOLO (800-1200 parole)
+
+Regole dell'articolo:
+
+- usa sottotitoli gerarchici
+- indica SEMPRE il livello dell'heading
+- usa il formato:
+
+H2: titolo sezione
+
+testo
+
+H3: sottosezione
+
+testo
+
 - linguaggio naturale
-- con H2 e H3
-- stile informativo
+- SEO friendly
 - evita duplicazioni
-
-Usa i competitor come fonte di insight senza copiarli.
+- usa gli insight dei competitor senza copiarli
 
 COMPETITOR DATA:
 {merged}
 
-Scrivi l'articolo completo.
+Restituisci il risultato nel seguente formato:
+
+TITLE TAG:
+...
+
+META DESCRIPTION:
+...
+
+ARTICLE:
+...
 """
 
     response = client.chat.completions.create(
@@ -173,14 +198,39 @@ Scrivi l'articolo completo.
         temperature=0.7
     )
 
-    return response.choices[0].message.content
+    content = response.choices[0].message.content
+
+    title = ""
+    meta = ""
+    article = content
+
+    if "TITLE TAG:" in content:
+
+        parts = content.split("TITLE TAG:")[1]
+
+        if "META DESCRIPTION:" in parts:
+            title = parts.split("META DESCRIPTION:")[0].strip()
+
+        if "ARTICLE:" in parts:
+            meta = parts.split("META DESCRIPTION:")[1].split("ARTICLE:")[0].strip()
+            article = parts.split("ARTICLE:")[1].strip()
+
+    return title, meta, article
 
 
-def create_word_file(text: str):
+def create_word_file(title_tag, meta_description, article):
 
     doc = Document()
 
-    for line in text.split("\n"):
+    doc.add_heading("Title Tag", level=2)
+    doc.add_paragraph(title_tag)
+
+    doc.add_heading("Meta Description", level=2)
+    doc.add_paragraph(meta_description)
+
+    doc.add_heading("Articolo", level=2)
+
+    for line in article.split("\n"):
         doc.add_paragraph(line)
 
     buffer = BytesIO()
@@ -201,18 +251,12 @@ if generate:
     if not SERPAPI_KEY or not OPENAI_KEY:
 
         st.error("Inserisci entrambe le API key nella sidebar")
-
         st.stop()
 
     if not keyword:
 
         st.error("Inserisci una keyword")
-
         st.stop()
-
-    # ------------------
-    # Recupero competitor
-    # ------------------
 
     with st.spinner("Recupero competitor dalla SERP..."):
 
@@ -221,19 +265,13 @@ if generate:
     if len(competitors_raw) == 0:
 
         st.error("Nessun competitor trovato")
-
         st.stop()
 
     competitors = []
 
-    # ------------------
-    # Scraping competitor
-    # ------------------
-
     st.write("### Analisi contenuti competitor")
 
     progress = st.progress(0)
-
     status = st.empty()
 
     total = len(competitors_raw)
@@ -258,27 +296,35 @@ if generate:
 
     status.empty()
 
-    # ------------------
-    # Generazione articolo
-    # ------------------
+    with st.spinner("Generazione contenuto con AI..."):
 
-    with st.spinner("Generazione articolo con AI..."):
+        title_tag, meta_description, article = generate_article(
+            keyword,
+            competitors,
+            OPENAI_KEY
+        )
 
-        article = generate_article(keyword, competitors, OPENAI_KEY)
+    st.subheader("SEO Metadata")
 
-    # ------------------
-    # Output
-    # ------------------
+    st.write("**Title Tag**")
+    st.write(title_tag)
+
+    st.write("**Meta Description**")
+    st.write(meta_description)
 
     st.subheader("Articolo generato")
 
     st.write(article)
 
-    word_file = create_word_file(article)
+    word_file = create_word_file(
+        title_tag,
+        meta_description,
+        article
+    )
 
     st.download_button(
-        label="Scarica articolo Word",
+        label="Scarica documento Word",
         data=word_file,
-        file_name=f"articolo_{keyword.replace(' ','_')}.docx",
+        file_name=f"contenuto_{keyword.replace(' ','_')}.docx",
         mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
     )
