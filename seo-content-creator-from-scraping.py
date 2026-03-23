@@ -43,7 +43,7 @@ num_results = st.number_input(
 country = st.text_input(
     "Country code (gl)",
     value="it",
-    help="Inserisci il codice paese (es: it, us, uk, es, fr)"
+    help="Inserisci il codice paese (es: it, us, gb, es, fr)"
 )
 
 language = st.text_input(
