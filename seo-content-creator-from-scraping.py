@@ -40,21 +40,33 @@ num_results = st.number_input(
     value=3
 )
 
+country = st.text_input(
+    "Country code (gl)",
+    value="it",
+    help="Inserisci il codice paese (es: it, us, uk, es, fr)"
+)
+
+language = st.text_input(
+    "Language code (hl)",
+    value="it",
+    help="Inserisci il codice lingua (es: it, en, es, fr)"
+)
+
 generate = st.button("Genera contenuto")
 
 # ======================
 # FUNZIONI
 # ======================
 
-def get_competitors(keyword: str, num_results: int, serp_key: str):
+def get_competitors(keyword: str, num_results: int, serp_key: str, hl: str, gl: str):
 
     url = "https://serpapi.com/search.json"
 
     params = {
         "engine": "google",
         "q": keyword,
-        "hl": "it",
-        "gl": "it",
+        "hl": hl,
+        "gl": gl,
         "num": num_results,
         "api_key": serp_key
     }
@@ -260,7 +272,13 @@ if generate:
 
     with st.spinner("Recupero competitor dalla SERP..."):
 
-        competitors_raw = get_competitors(keyword, num_results, SERPAPI_KEY)
+        competitors_raw = get_competitors(
+            keyword,
+            num_results,
+            SERPAPI_KEY,
+            language,
+            country
+        )
 
     if len(competitors_raw) == 0:
 
