@@ -43,7 +43,7 @@ num_results = st.number_input(
 country = st.text_input(
     "Country code (gl)",
     value="it",
-    help="Inserisci il codice paese (es: it, us, gb, es, fr)"
+    help="Inserisci il codice paese (es: it, us, uk, es, fr)"
 )
 
 language = st.text_input(
@@ -132,7 +132,7 @@ def extract_metadata(html: str):
     return title, h1, meta_desc
 
 
-def generate_article(keyword: str, competitors: list, openai_key: str):
+def generate_article(keyword: str, competitors: list, openai_key: str, language: str):
 
     client = OpenAI(api_key=openai_key)
 
@@ -162,6 +162,11 @@ Scrivi un contenuto SEO completo per la keyword:
 
 {keyword}
 
+IMPORTANTE:
+L'articolo deve essere scritto nella stessa lingua della ricerca Google.
+
+Language code della ricerca: {language}
+
 Il risultato deve contenere:
 
 TITLE TAG (max 60 caratteri)
@@ -188,6 +193,7 @@ testo
 - SEO friendly
 - evita duplicazioni
 - usa gli insight dei competitor senza copiarli
+- scrivi tutto nella lingua indicata
 
 COMPETITOR DATA:
 {merged}
@@ -319,7 +325,8 @@ if generate:
         title_tag, meta_description, article = generate_article(
             keyword,
             competitors,
-            OPENAI_KEY
+            OPENAI_KEY,
+            language
         )
 
     st.subheader("SEO Metadata")
