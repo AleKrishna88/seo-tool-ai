@@ -28,7 +28,7 @@ OPENAI_KEY = st.sidebar.text_input(
 st.title("SEO Article Generator")
 
 st.write(
-    "Genera articoli SEO analizzando automaticamente i competitor nella SERP e le Peolpe Also Ask."
+    "Genera articoli SEO analizzando automaticamente i competitor nella SERP."
 )
 
 keyword = st.text_input("Main keyword")
@@ -351,9 +351,21 @@ if generate:
             country
         )
 
-    competitors = []
+    if paa_questions:
+
+        st.write("### People Also Ask estratte dalla SERP")
+
+        for q in paa_questions:
+            st.write("-", q)
 
     st.write("### Analisi contenuti competitor")
+
+    st.write("#### Pagine utilizzate per l'analisi")
+
+    for comp in competitors_raw:
+        st.write("-", comp["link"])
+
+    competitors = []
 
     progress = st.progress(0)
     status = st.empty()
