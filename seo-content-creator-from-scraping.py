@@ -28,7 +28,7 @@ OPENAI_KEY = st.sidebar.text_input(
 st.title("SEO Article Generator")
 
 st.write(
-    "Genera articoli SEO analizzando automaticamente i competitor nella SERP e le People Also Ask."
+    "Genera articoli SEO analizzando automaticamente i competitor nella SERP."
 )
 
 keyword = st.text_input("Main keyword")
@@ -203,45 +203,23 @@ TITLE TAG (max 60 caratteri)
 
 META DESCRIPTION (max 155 caratteri)
 
-ARTICOLO (800-1200 parole)
+ARTICOLO HTML (800-1200 parole)
 
-Regole dell'articolo:
+L'articolo deve essere scritto in HTML pronto per un editor CMS.
 
-- usa sottotitoli gerarchici
-- indica SEMPRE il livello dell'heading
-- usa il formato:
+Regole HTML:
 
-H2: titolo sezione
-
-testo
-
-H3: sottosezione
-
-testo
-
-- linguaggio naturale
-- SEO friendly
-- evita duplicazioni
-- scrivi tutto nella lingua indicata
+- usa <h2> e <h3> per i sottotitoli
+- usa <p> per i paragrafi
+- usa <ul> <ol> per liste
+- usa <strong> per enfasi
+- usa <table> se utile per confronti
+- NON includere <html>, <body>, <head>
 
 IMPORTANTE:
 
-Hai due fonti di insight SEO:
-
-1) Analisi dei contenuti dei competitor in SERP
-2) Domande People Also Ask della SERP
-
 Le domande People Also Ask NON devono essere riportate come Q&A.
-
-Devono essere utilizzate per capire:
-
-- quali sotto-temi gli utenti cercano
-- quali dubbi hanno
-- quali aspetti della keyword richiedono spiegazioni
-
-Integra questi insight nel contenuto in modo naturale,
-coprendo gli stessi argomenti ma senza copiare né formulare
-le sezioni come domande.
+Devono essere usate solo per capire i sotto-temi.
 
 PAA INSIGHTS:
 {paa_block}
@@ -249,7 +227,7 @@ PAA INSIGHTS:
 COMPETITOR DATA:
 {merged}
 
-Restituisci il risultato nel seguente formato:
+Restituisci il risultato nel formato:
 
 TITLE TAG:
 ...
@@ -257,7 +235,7 @@ TITLE TAG:
 META DESCRIPTION:
 ...
 
-ARTICLE:
+ARTICLE HTML:
 ...
 """
 
@@ -280,9 +258,9 @@ ARTICLE:
         if "META DESCRIPTION:" in parts:
             title = parts.split("META DESCRIPTION:")[0].strip()
 
-        if "ARTICLE:" in parts:
-            meta = parts.split("META DESCRIPTION:")[1].split("ARTICLE:")[0].strip()
-            article = parts.split("ARTICLE:")[1].strip()
+        if "ARTICLE HTML:" in parts:
+            meta = parts.split("META DESCRIPTION:")[1].split("ARTICLE HTML:")[0].strip()
+            article = parts.split("ARTICLE HTML:")[1].strip()
 
     return title, meta, article
 
@@ -297,10 +275,8 @@ def create_word_file(title_tag, meta_description, article):
     doc.add_heading("Meta Description", level=2)
     doc.add_paragraph(meta_description)
 
-    doc.add_heading("Articolo", level=2)
-
-    for line in article.split("\n"):
-        doc.add_paragraph(line)
+    doc.add_heading("HTML Article", level=2)
+    doc.add_paragraph(article)
 
     buffer = BytesIO()
 
@@ -410,9 +386,9 @@ if generate:
     st.write("**Meta Description**")
     st.write(meta_description)
 
-    st.subheader("Articolo generato")
+    st.subheader("Articolo HTML generato")
 
-    st.write(article)
+    st.code(article, language="html")
 
     word_file = create_word_file(
         title_tag,
