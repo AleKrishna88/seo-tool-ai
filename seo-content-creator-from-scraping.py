@@ -42,14 +42,12 @@ num_results = st.number_input(
 
 country = st.text_input(
     "Country code (gl)",
-    value="it",
-    help="Inserisci il codice paese (es: it, us, gb, es, fr)"
+    value="it"
 )
 
 language = st.text_input(
     "Language code (hl)",
-    value="it",
-    help="Inserisci il codice lingua (es: it, en, es, fr)"
+    value="it"
 )
 
 generate = st.button("Genera contenuto")
@@ -87,6 +85,36 @@ def get_competitors(keyword: str, num_results: int, serp_key: str, hl: str, gl: 
         })
 
     return competitors
+
+
+def get_people_also_ask(keyword: str, serp_key: str, hl: str, gl: str):
+
+    url = "https://serpapi.com/search.json"
+
+    params = {
+        "engine": "google",
+        "q": keyword,
+        "hl": hl,
+        "gl": gl,
+        "api_key": serp_key
+    }
+
+    response = requests.get(url, params=params)
+
+    data = response.json()
+
+    questions = data.get("related_questions", [])
+
+    paa = []
+
+    for q in questions:
+
+        question = q.get("question")
+
+        if question:
+            paa.append(question)
+
+    return paa
 
 
 def fetch_page(url: str):
@@ -132,7 +160,7 @@ def extract_metadata(html: str):
     return title, h1, meta_desc
 
 
-def generate_article(keyword: str, competitors: list, openai_key: str, language: str):
+def generate_article(keyword: str, competitors: list, paa: list, openai_key: str, language: str):
 
     client = OpenAI(api_key=openai_key)
 
@@ -155,15 +183,17 @@ CONTENUTO:
 ------------------------------------
 """
 
+    paa_block = ""
+
+    if paa:
+        paa_block = "\n".join([f"- {q}" for q in paa])
+
     prompt = f"""
 Sei un content writer SEO esperto.
 
 Scrivi un contenuto SEO completo per la keyword:
 
 {keyword}
-
-IMPORTANTE:
-L'articolo deve essere scritto nella stessa lingua della ricerca Google.
 
 Language code della ricerca: {language}
 
@@ -192,8 +222,29 @@ testo
 - linguaggio naturale
 - SEO friendly
 - evita duplicazioni
-- usa gli insight dei competitor senza copiarli
 - scrivi tutto nella lingua indicata
+
+IMPORTANTE:
+
+Hai due fonti di insight SEO:
+
+1) Analisi dei contenuti dei competitor in SERP
+2) Domande People Also Ask della SERP
+
+Le domande People Also Ask NON devono essere riportate come Q&A.
+
+Devono essere utilizzate per capire:
+
+- quali sotto-temi gli utenti cercano
+- quali dubbi hanno
+- quali aspetti della keyword richiedono spiegazioni
+
+Integra questi insight nel contenuto in modo naturale,
+coprendo gli stessi argomenti ma senza copiare né formulare
+le sezioni come domande.
+
+PAA INSIGHTS:
+{paa_block}
 
 COMPETITOR DATA:
 {merged}
@@ -291,6 +342,15 @@ if generate:
         st.error("Nessun competitor trovato")
         st.stop()
 
+    with st.spinner("Recupero insight dalla SERP (People Also Ask)..."):
+
+        paa_questions = get_people_also_ask(
+            keyword,
+            SERPAPI_KEY,
+            language,
+            country
+        )
+
     competitors = []
 
     st.write("### Analisi contenuti competitor")
@@ -325,6 +385,7 @@ if generate:
         title_tag, meta_description, article = generate_article(
             keyword,
             competitors,
+            paa_questions,
             OPENAI_KEY,
             language
         )
