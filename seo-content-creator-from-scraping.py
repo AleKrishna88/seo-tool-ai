@@ -340,7 +340,6 @@ OPENAI_KEY = st.sidebar.text_input(
 st.markdown(
     f"""
     <div style="text-align:center; padding-top:10px;">
-        <img src="{LOGO_URL}" width="220">
         <h1 style="margin-top:15px; margin-bottom:5px;">Magic Article Generator from Scraping</h1>
         <p style="font-size:18px; color:#6b7280; margin-bottom:25px;">
         Genera contenuti SEO analizzando le PAA e i contenuti dei competitor.
