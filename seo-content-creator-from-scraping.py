@@ -222,7 +222,7 @@ CONTENUTO:
     prompt = f"""
 Sei un content writer SEO esperto.
 
-Scrivi un contenuto SEO completo per la keyword:
+Scrivi un contenuto SEO completo per il tema:
 
 {keyword}
 
@@ -235,6 +235,7 @@ META DESCRIPTION (max 155 caratteri, naturale e con soft CTA)
 ARTICOLO HTML (800-1500 parole)
 
 L'articolo deve essere scritto in HTML pronto per CMS.
+
 
 Regole HTML:
 - usa <h2> e <h3>
@@ -254,6 +255,7 @@ Le PAA NON devono comparire come Q&A.
 - Le tabelle devono essere ottimizzate per viewport mobile (leggibili da smartphone).
 - Evidenzia con **strong** le entità chiave.
 - Evita testo di riempimento: ogni paragrafo deve aggiungere valore informativo.
+- Non usare mai la formula "la keyword" o "questa keyword", ricorda che stai scrivendo per un magazine.
 - Evita paragrafi schematici: il testo deve essere discorsivo e ricco. No paragrafi composti solo da punti elenco.
 - Al termine dell'articolo suggerisci almeno 4 FAQ relative al contentenuto in formato Q&A
 
