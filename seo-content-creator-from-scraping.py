@@ -2,7 +2,6 @@ import streamlit as st
 import requests
 from bs4 import BeautifulSoup
 from openai import OpenAI
-from docx import Document
 from io import BytesIO
 
 
@@ -198,7 +197,7 @@ def parse_generated_content(content: str):
     return title, meta, article
 
 
-def generate_article(keyword: str, competitors: list, paa: list, openai_key: str, language: str):
+def generate_article(keyword: str, article_title: str, competitors: list, paa: list, openai_key: str, language: str):
     client = OpenAI(api_key=openai_key)
 
     merged = ""
@@ -224,7 +223,11 @@ Sei un content writer SEO esperto.
 
 Scrivi un contenuto SEO completo per il tema:
 
+KEYWORD TARGET:
 {keyword}
+
+H1 ARTICOLO (da usare obbligatoriamente, non modificarlo):
+{article_title}
 
 Language code della ricerca: {language}
 
@@ -236,8 +239,11 @@ ARTICOLO HTML (800-1500 parole)
 
 L'articolo deve essere scritto in HTML pronto per CMS.
 
-
 Regole HTML:
+- L'H1 dell'articolo è già definito e deve essere:
+<h1>{article_title}</h1>
+- Non creare un nuovo H1
+- Inserisci questo H1 all'inizio dell'articolo
 - usa <h2> e <h3>
 - usa <p>
 - usa <ul> <ol>
@@ -249,15 +255,15 @@ Le PAA NON devono comparire come Q&A.
 
 # Requisiti editoriali
 
-- Usa gli heading (H1, H2, H3) per formulare quesiti espliciti basati su keyword con volume di ricerca.
+- Usa gli heading (H2, H3) per formulare quesiti espliciti basati su keyword con volume di ricerca.
 - Inserisci sempre la maiuscola a inizio frase.
 - Utilizza elenchi puntati o numerati quando utile.
 - Le tabelle devono essere ottimizzate per viewport mobile (leggibili da smartphone).
 - Evidenzia con **strong** le entità chiave.
 - Evita testo di riempimento: ogni paragrafo deve aggiungere valore informativo.
-- Non usare mai la formula "la keyword" o "questa keyword", ricorda che stai scrivendo per un magazine.
-- Evita paragrafi schematici: il testo deve essere discorsivo e ricco. No paragrafi composti solo da punti elenco.
-- Al termine dell'articolo suggerisci almeno 4 FAQ relative al contentenuto in formato Q&A
+- Non usare mai la formula "la keyword" o "questa keyword".
+- Evita paragrafi schematici: il testo deve essere discorsivo e ricco.
+- Al termine dell'articolo suggerisci almeno 4 FAQ relative al contenuto in formato Q&A.
 
 PAA INSIGHTS:
 {paa_block}
@@ -288,23 +294,21 @@ ARTICLE HTML:
 
 
 # ======================
-# WORD EXPORT
+# TXT EXPORT
 # ======================
 
-def create_word_file(title_tag: str, meta_description: str, article: str):
-    doc = Document()
+def create_txt_file(title_tag: str, meta_description: str, article: str):
+    content = f"""TITLE TAG:
+{title_tag}
 
-    doc.add_heading("Title Tag", level=2)
-    doc.add_paragraph(title_tag)
+META DESCRIPTION:
+{meta_description}
 
-    doc.add_heading("Meta Description", level=2)
-    doc.add_paragraph(meta_description)
-
-    doc.add_heading("HTML Article", level=2)
-    doc.add_paragraph(article)
-
+ARTICLE HTML:
+{article}
+"""
     buffer = BytesIO()
-    doc.save(buffer)
+    buffer.write(content.encode("utf-8"))
     buffer.seek(0)
 
     return buffer
@@ -353,6 +357,7 @@ st.markdown(
 )
 
 keyword = st.text_input("Keyword")
+article_title = st.text_input("Titolo articolo (H1)")
 num_results = st.slider("Numero competitor organici da analizzare", 1, 20, 5)
 country = st.text_input("Country code", "it")
 language = st.text_input("Language code", "it")
@@ -371,6 +376,10 @@ if generate:
 
     if not keyword.strip():
         st.error("Inserisci una keyword.")
+        st.stop()
+
+    if not article_title.strip():
+        st.error("Inserisci il titolo dell'articolo.")
         st.stop()
 
     st.session_state.article = ""
@@ -438,6 +447,7 @@ if generate:
     with st.spinner(f"Generazione articolo su {len(enriched)} contenuti organici..."):
         title_tag, meta_description, article = generate_article(
             keyword=keyword,
+            article_title=article_title,
             competitors=enriched,
             paa=paa,
             openai_key=OPENAI_KEY,
@@ -465,15 +475,15 @@ if st.session_state.article:
     st.subheader("Articolo HTML")
     st.code(st.session_state.article, language="html")
 
-    word_file = create_word_file(
+    txt_file = create_txt_file(
         st.session_state.title_tag,
         st.session_state.meta_description,
         st.session_state.article
     )
 
     st.download_button(
-        label="Scarica Word",
-        data=word_file,
-        file_name="articolo_seo.docx",
-        mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        label="Scarica TXT",
+        data=txt_file,
+        file_name="articolo_seo.txt",
+        mime="text/plain"
     )
