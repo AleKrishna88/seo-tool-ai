@@ -247,7 +247,7 @@ Language code della ricerca: {language}
 
 Il risultato deve contenere:
 
-TITLE TAG (max 60 caratteri)
+TITLE TAG (max 60 caratteri), differenziato dall'H1 in ottica SEO e ottimimizzato sulla base di quanto analizzato
 META DESCRIPTION (max 155 caratteri, naturale e con soft CTA)
 ARTICOLO HTML (800-1500 parole)
 
@@ -269,7 +269,9 @@ Le PAA NON devono comparire come Q&A.
 
 # Requisiti editoriali
 
+- Non iniziare mai il contenuto utilizzando la main keyword in modo rigido e innaturale.
 - Usa gli heading (H2, H3) per formulare quesiti espliciti basati su keyword con volume di ricerca.
+- Non formulare tutti gli headings in forma di domanda, solo se necessario.
 - Inserisci sempre la maiuscola a inizio frase.
 - Utilizza elenchi puntati o numerati quando utile.
 - Le tabelle devono essere ottimizzate per viewport mobile (leggibili da smartphone).
@@ -277,7 +279,7 @@ Le PAA NON devono comparire come Q&A.
 - Evita testo di riempimento: ogni paragrafo deve aggiungere valore informativo.
 - Non usare mai la formula "la keyword" o "questa keyword".
 - Evita paragrafi schematici: il testo deve essere discorsivo e ricco.
-- Al termine dell'articolo suggerisci almeno 4 FAQ relative al contenuto in formato Q&A.
+- Al termine dell'articolo suggerisci almeno 4 FAQ relative al contenuto in formato Q&A e un excerpt di massimo 160 caratteri.
 - Le secondary keywords servono solo ad arricchire il contesto semantico e informativo del contenuto. Non trattarle come vincoli rigidi e non usarle per dedurre logiche di scraping.
 
 INDICAZIONI EDITORIALI AGGIUNTIVE:
