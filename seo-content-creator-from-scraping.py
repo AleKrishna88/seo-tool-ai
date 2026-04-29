@@ -197,7 +197,16 @@ def parse_generated_content(content: str):
     return title, meta, article
 
 
-def generate_article(keyword: str, article_title: str, competitors: list, paa: list, openai_key: str, language: str):
+def generate_article(
+    keyword: str,
+    article_title: str,
+    competitors: list,
+    paa: list,
+    openai_key: str,
+    language: str,
+    secondary_keywords: str = "",
+    custom_prompt: str = ""
+):
     client = OpenAI(api_key=openai_key)
 
     merged = ""
@@ -217,6 +226,8 @@ CONTENUTO:
 """
 
     paa_block = "\n".join([f"- {q}" for q in paa]) if paa else "Nessuna PAA disponibile."
+    secondary_keywords_block = secondary_keywords.strip() or "Nessuna keyword secondaria fornita."
+    custom_prompt_block = custom_prompt.strip()
 
     prompt = f"""
 Sei un content writer SEO esperto.
@@ -225,6 +236,9 @@ Scrivi un contenuto SEO completo per il tema:
 
 KEYWORD TARGET:
 {keyword}
+
+SECONDARY KEYWORDS:
+{secondary_keywords_block}
 
 H1 ARTICOLO (da usare obbligatoriamente, non modificarlo):
 {article_title}
@@ -264,6 +278,10 @@ Le PAA NON devono comparire come Q&A.
 - Non usare mai la formula "la keyword" o "questa keyword".
 - Evita paragrafi schematici: il testo deve essere discorsivo e ricco.
 - Al termine dell'articolo suggerisci almeno 4 FAQ relative al contenuto in formato Q&A.
+- Le secondary keywords servono solo ad arricchire il contesto semantico e informativo del contenuto. Non trattarle come vincoli rigidi e non usarle per dedurre logiche di scraping.
+
+INDICAZIONI EDITORIALI AGGIUNTIVE:
+{custom_prompt_block if custom_prompt_block else "Nessuna indicazione aggiuntiva: segui le istruzioni editoriali di default."}
 
 PAA INSIGHTS:
 {paa_block}
@@ -358,6 +376,14 @@ st.markdown(
 
 keyword = st.text_input("Keyword")
 article_title = st.text_input("Titolo articolo (H1)")
+secondary_keywords = st.text_area(
+    "Secondary keywords (opzionale)",
+    placeholder="Es. seo locale, ottimizzazione google business profile, recensioni online"
+)
+custom_prompt = st.text_area(
+    "Custom prompt (opzionale)",
+    placeholder="Aggiungi istruzioni editoriali extra da integrare a quelle di default"
+)
 num_results = st.slider("Numero competitor organici da analizzare", 1, 20, 5)
 country = st.text_input("Country code", "it")
 language = st.text_input("Language code", "it")
@@ -451,7 +477,9 @@ if generate:
             competitors=enriched,
             paa=paa,
             openai_key=OPENAI_KEY,
-            language=language
+            language=language,
+            secondary_keywords=secondary_keywords,
+            custom_prompt=custom_prompt
         )
 
     st.session_state.title_tag = title_tag
