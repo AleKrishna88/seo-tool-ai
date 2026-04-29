@@ -514,6 +514,6 @@ if st.session_state.article:
     st.download_button(
         label="Scarica TXT",
         data=txt_file,
-        file_name="articolo_seo.txt",
+        file_name=f"{article_title.strip()}.txt",
         mime="text/plain"
     )
