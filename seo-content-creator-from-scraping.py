@@ -269,8 +269,8 @@ Le PAA NON devono comparire come Q&A.
 
 # Requisiti editoriali
 
-- Non iniziare mai il contenuto utilizzando la main keyword in modo rigido e innaturale.
 - Usa gli heading (H2, H3) per formulare quesiti espliciti basati su keyword con volume di ricerca.
+- Integra la main keyword nel testo sempre in maniera naturale, mai in modo artificiale o secco, rispettando la grammatica della lingua in cui stai lavorando.
 - Non formulare tutti gli headings in forma di domanda, solo se necessario.
 - Inserisci sempre la maiuscola a inizio frase.
 - Utilizza elenchi puntati o numerati quando utile.
